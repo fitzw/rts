@@ -1,12 +1,12 @@
 
 # coding: utf-8
 
-# In[303]:
+# In[22]:
 
 from bs4 import BeautifulSoup
 import sys
-import time
-import datetime
+import time as tm
+from datetime import datetime, time
 import os
 import requests
 import codecs
@@ -46,7 +46,7 @@ def get_stop_info(stop_id):
 
 # In[277]:
 
-def get_bus_info(stop_data,t_type,rount_n):
+def get_bus_info(stop_data,t_type,route_n):
     if 'mode' not in stop_data.keys():
         print('service goes offline')
     else:
@@ -66,14 +66,6 @@ def get_bus_info(stop_data,t_type,rount_n):
 # In[168]:
 
 #bus_data['direction'][0].keys() -> ['trip', 'direction_name', 'direction_id']
-
-
-# In[312]:
-
-#by default 
-desired_stop = 175
-t_type = 'Bus'
-route_n = 39
 
 
 # In[263]:
@@ -103,13 +95,14 @@ route_n = 39
 #     t_type = sys.argv[2]
 
 
-# In[291]:
+# In[38]:
 
 #import pickle
 def writer(l,filename):
-    with open(filename, "w") as fp: 
+    with open(filename+'.txt', "w") as fp: 
         for item in l:
             fp.write("%s\n" % item)
+    print(filename+' is written @ '+str(datetime.now()))
 
 
 # In[331]:
@@ -129,9 +122,9 @@ def worker(n,desired_stop,t_type,route_n,filename):
         stop_data = get_stop_info(desired_stop)
         bus_list = get_bus_info(stop_data,t_type,route_n)
         #print([count,bus_list])
-        result.append([count,datetime.datetime.now(),bus_list])
+        result.append([count,datetime.now(),bus_list])
         count+=1
-        time.sleep(10)
+        tm.sleep(10)
     progress.done()
     writer(result,filename)
     return result
@@ -139,7 +132,35 @@ def worker(n,desired_stop,t_type,route_n,filename):
 #worker(1800,171,'Bus',39,'test.txt')
 
 
-# In[333]:
+# In[33]:
+now = datetime.now()
+now_time = now.time()
+n,desired_stop, t_type, route_n = \
+    input("Please enter parameters in format of: n, stop_id, type, route_n =>").split(',')
+count = 0
+while(True):
+    if (time(4,30) <= now.time() <= time(23,59)) or (time(0,0) <= now.time() <= time(1,0)):
+        filename = 'output/'+tm.strftime("%b")+str(datetime.now().day)+'_'
+        saved_ = filename+"%d" %(count//int(n))
+        curr = 0
+        result = []
+        progress = ProgressBar(int(n), fmt=ProgressBar.FULL)
+        while(curr<int(n)):
+            progress.current += 1
+            progress()
+            stop_data = get_stop_info(desired_stop)
+            bus_list = get_bus_info(stop_data,t_type,route_n)
+            #print([count,bus_list])
+            result.append([count,datetime.now(),bus_list])
+            curr+=1
+            count+=1
+            tm.sleep(10)
+        progress.done()
+        writer(result,saved_) 
+# In[32]:
 
-worker(3,175,'Bus',39,'t1.txt')
+# #by default 
+# desired_stop = 175
+# t_type = 'Bus'
+# route_n = 39
 
