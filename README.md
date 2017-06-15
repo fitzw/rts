@@ -1,5 +1,5 @@
 # rts
-Real time public transportation travel planner
+Real time public transportation travel planner.
 
 ## Data collection
 * n: # of records per data file.
